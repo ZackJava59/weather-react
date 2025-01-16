@@ -7,7 +7,7 @@ const Weather = ({city}) => {
 
     const getWeather = async () => {
         try {
-            const response = await fetch(`${base_url}?q=${city}&appid=${api_key}&units=metric`);
+            const response = await fetch(`${base_url}?q=${city.name}&appid=${api_key}&units=metric`);
             if (!response.ok) {
                 throw new Error('Enter correct city name');
             }
@@ -44,7 +44,6 @@ const Weather = ({city}) => {
             {message}
         </div>
     );
-
 
 };
 
