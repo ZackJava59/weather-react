@@ -1,13 +1,13 @@
-import {api_key, base_url} from "../utils/constants.js";
+import {api_key, base_url, weather_cache_time} from "../utils/constants.js";
 import {useEffect, useState} from "react";
 
-const Weather = ({city}) => {
+const Weather = ({city, timeStamp}) => {
     const [weather, setWeather] = useState({});
     const [message, setMessage] = useState('Enter city name');
 
     const getWeather = async () => {
         try {
-            const response = await fetch(`${base_url}?q=${city.name}&appid=${api_key}&units=metric`);
+            const response = await fetch(`${base_url}?q=${city}&appid=${api_key}&units=metric`);
             if (!response.ok) {
                 throw new Error('Enter correct city name');
             }
@@ -17,7 +17,9 @@ const Weather = ({city}) => {
                 country: data.sys.country,
                 temp: data.main.temp,
                 pressure: data.main.pressure,
-                sunset: data.sys.sunset * 1000
+                sunset: data.sys.sunset * 1000,
+                cityName: city,
+                timeStamp: Date.now()
             })
             setMessage('');
         } catch (e) {
@@ -26,10 +28,10 @@ const Weather = ({city}) => {
     }
 
     useEffect(() => {
-        if (city) {
+        if (city && !(city === weather.cityName && (timeStamp - weather.timeStamp) < weather_cache_time)) {
             getWeather();
         }
-    }, [city]);
+    });
 
     return (
         <div className={'infoWeath'}>
@@ -44,6 +46,7 @@ const Weather = ({city}) => {
             {message}
         </div>
     );
+
 
 };
 
