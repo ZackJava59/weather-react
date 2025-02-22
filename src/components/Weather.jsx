@@ -1,9 +1,13 @@
 import {api_key, base_url, weather_cache_time} from "../utils/constants.js";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {putMessage, putWeather} from "../actions/weatherAppAction.js";
 
-const Weather = ({city, timeStamp}) => {
-    const [weather, setWeather] = useState({});
-    const [message, setMessage] = useState('Enter city name');
+const Weather = () => {
+    const {city, timeStamp} = useSelector(state => state.city);
+    const weather = useSelector((state) => state.weather);
+    const {message} = useSelector(state => state.message);
+    const dispatch = useDispatch();
 
     const getWeather = async () => {
         try {
@@ -12,7 +16,7 @@ const Weather = ({city, timeStamp}) => {
                 throw new Error('Enter correct city name');
             }
             const data = await response.json();
-            setWeather({
+            dispatch(putWeather({
                 city: data.name,
                 country: data.sys.country,
                 temp: data.main.temp,
@@ -20,10 +24,10 @@ const Weather = ({city, timeStamp}) => {
                 sunset: data.sys.sunset * 1000,
                 cityName: city,
                 timeStamp: Date.now()
-            })
-            setMessage('');
+            }))
+            dispatch(putMessage(''));
         } catch (e) {
-            setMessage(e.message);
+            dispatch(putMessage(e.message));
         }
     }
 
@@ -31,11 +35,11 @@ const Weather = ({city, timeStamp}) => {
         if (city && !(city === weather.cityName && (timeStamp - weather.timeStamp) < weather_cache_time)) {
             getWeather();
         }
-    });
+    }, [city, weather]);
 
     return (
         <div className={'infoWeath'}>
-            {!message &&
+            {!message && weather &&
                 <>
                     <p>Location: {weather.country}, {weather.city}</p>
                     <p>Temp: {weather.temp}</p>
@@ -43,7 +47,7 @@ const Weather = ({city, timeStamp}) => {
                     <p>Sunset: {new Date(weather.sunset).toLocaleTimeString()}</p>
                 </>
             }
-            {message}
+            {message && <p>{message}</p>}
         </div>
     );
 

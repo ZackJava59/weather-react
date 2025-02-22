@@ -1,9 +1,14 @@
-const Form = ({setCity}) => {
+import {useDispatch} from "react-redux";
+import {getCity} from "../actions/weatherAppAction.js";
+
+const Form = () => {
+    const dispatch = useDispatch();
 
     const handleClickGetWeather = e => {
         e.preventDefault();
         const city = e.target.city.value.trim();
-        setCity({name: city, timestamp: Date.now()});
+        if (!city) return;
+        dispatch(getCity(city, Date.now()));
         e.target.city.value = '';
     }
 
